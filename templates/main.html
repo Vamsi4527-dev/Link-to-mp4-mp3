@@ -36,12 +36,11 @@
                 </button>
             </a>
             <br>
-            <h1 style="font-size: 4.5rem;">⇩ Preview</h1>
+            <h1 style="font-size: 4.5rem;">⇩ Ready to Download</h1>
             <!-- Premium Preview Box -->
             <div class="preview-container">
-                <div class="preview-box">
-                    <img src="{{ url_for('static', filename='preview.png') }}" alt="App Preview"
-                        style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.5s;">
+                <div class="preview-box" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.05));">
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">Start by clicking "Get Started" above →</p>
                 </div>
             </div>
         </div>
