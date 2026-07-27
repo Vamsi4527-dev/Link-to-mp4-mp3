@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexConvert | Facebook Result</title>
+    <meta name="description" content="Download your Facebook video or audio file instantly with NexConvert.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="hero facebook-theme">
+        <header class="header">
+            <div class="brand">NexConvert</div>
+            <nav class="nav-buttons">
+                <a href="/instagram" class="nav-link instagram-nav"><i class="fab fa-instagram"></i>
+                    <span></span></a>
+                <a href="/facebook" class="nav-link facebook-nav active-nav"><i class="fab fa-facebook"></i>
+                    <span></span></a>
+                <a href="/twitter" class="nav-link twitter-nav"><i class="fab fa-x-twitter"></i>
+                    <span></span></a>
+            
+<button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode" style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
+    <i class="fas fa-moon" style="margin-right:0;"></i>
+</button>
+</nav>
+        </header>
+
+        <div class="hero-content">
+            <a href="/facebook" style="margin-bottom: 2rem; opacity: 0.6; font-size: 1.5rem; font-weight: 700;">⇩
+                Convert
+                another video</a>
+            <h2><i class="fab fa-facebook" style="margin-right: 10px;"></i>{{ title }}</h2>
+
+            <div
+                style="background: var(--glass); padding: 2rem; border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); max-width: 500px; width: 100%;">
+
+                {% if thumbnail_url %}
+                <img src="{{ thumbnail_url }}" alt="Thumbnail"
+                    style="max-width: 100%; height: auto; margin-bottom: 2rem;">
+                {% else %}
+                <div style="padding: 2rem; text-align: center; opacity: 0.5; margin-bottom: 1rem;">
+                    <i class="fab fa-facebook" style="font-size: 4rem;"></i>
+                    <p style="margin-top: 1rem;">No thumbnail available</p>
+                </div>
+                {% endif %}
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <a href="{{ url_for('facebook_download', link=link_input, type='mp4') }}" id="fb-download-mp4">
+                        <button
+                            style="width: 100%; padding: 1rem; border-radius: 12px; border: none; background: linear-gradient(45deg, #1877F2, #0a5dc2, #166fe5, #1565c0); color: white; font-weight: 700; cursor: pointer; font-size: 1rem;">
+                            <i class="fas fa-download"></i> Download MP4
+                        </button>
+                    </a>
+                    <a href="{{ url_for('facebook_download', link=link_input, type='mp3') }}" id="fb-download-mp3">
+                        <button
+                            style="width: 100%; padding: 1rem; border-radius: 12px; border: none; background: linear-gradient(45deg, #1877F2, #0a5dc2, #166fe5, #1565c0); color: white; font-weight: 700; cursor: pointer; font-size: 1rem;">
+                            <i class="fas fa-download"></i> Download MP3
+                        </button>
+                    </a>
+                </div>
+            </div>
+
+
+        </div>
+
+        <footer class="disclaimer-footer">
+            <p>This project is created for educational purposes only.</p>
+            <p>Users must respect copyright laws and platform terms.</p>
+            <h3>Developed by Vamsi_Krishna.</h3>
+            <p style="margin-top: 0.5rem; color: var(--text-muted);">&copy; 2026 NexConvert. All rights reserved.</p>
+        </footer>
+    </div>
+
+
+<script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const icon = themeToggle.querySelector('i');
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        body.classList.add('light-mode');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+
+    themeToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        body.classList.toggle('light-mode');
+        if (body.classList.contains('light-mode')) {
+            localStorage.setItem('theme', 'light');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    });
+</script>
+</body>
+
+
+</html>

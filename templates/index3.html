@@ -4,20 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexConvert | Error</title>
+    <title>NexConvert | Facebook Downloader</title>
+    <meta name="description"
+        content="Download Facebook videos and reels as MP4 or MP3 instantly. Fast, free, and easy.">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
-    <div class="hero">
+    <div class="hero facebook-theme">
         <header class="header">
             <div class="brand">NexConvert</div>
             <nav class="nav-buttons">
                 <a href="/instagram" class="nav-link instagram-nav"><i class="fab fa-instagram"></i>
                     <span></span></a>
-                <a href="/facebook" class="nav-link facebook-nav"><i class="fab fa-facebook"></i> <span></span></a>
+                <a href="/facebook" class="nav-link facebook-nav active-nav"><i class="fab fa-facebook"></i>
+                    <span></span></a>
                 <a href="/twitter" class="nav-link twitter-nav"><i class="fab fa-x-twitter"></i> <span></span></a>
             
 <button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode" style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
@@ -27,10 +30,22 @@
         </header>
 
         <div class="hero-content">
-            <h1 style="color: #fbbf24; background: none; -webkit-text-fill-color: initial;">Oops!</h1>
-            <p>{{ error_message }}</p>
+            <a href="/" style="margin-bottom: 2rem; opacity: 0.6; font-size: 1.5rem; font-weight: 700;">Back to home</a>
+            <h1>Facebook Downloader</h1>
+            <p>Paste a public Facebook video or Reel link below and choose your format.</p>
 
-            <a href="/" style="margin-top: 2rem; color: var(--accent); font-weight: 700;"> Back to Home</a>
+            <form method="post" action="/facebook/api">
+                <input type="text" id="fb-link-input" name="link_input"
+                    placeholder="https://www.facebook.com/watch?v=..." required>
+
+                <select name="file_type" id="fb-file-type">
+                    <option value="mp4">Video (MP4)</option>
+                    <option value="mp3">Audio (MP3)</option>
+                </select>
+
+                <button type="submit" id="fb-convert-btn">Convert Now</button>
+            </form>
+
         </div>
 
         <footer class="disclaimer-footer">
