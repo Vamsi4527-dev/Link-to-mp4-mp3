@@ -3,128 +3,122 @@
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>NexConvert | Twitter Downloader</title>
+    <title>NexConvert | Twitter Downloader</title>
 
-<meta name="description"
-content="Download Twitter / X videos instantly as MP4 or MP3 using NexConvert.">
+    <meta name="description" content="Download Twitter / X videos instantly as MP4 or MP3 using NexConvert.">
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 </head>
 
 <body>
 
-<div class="hero twitter-theme">
+    <div class="hero twitter-theme">
 
-<header class="header">
+        <header class="header">
 
-<div class="brand">NexConvert</div>
+            <div class="brand">NexConvert</div>
 
-<nav class="nav-buttons">
+            <nav class="nav-buttons">
 
-<a href="/instagram" class="nav-link instagram-nav">
-<i class="fab fa-instagram"></i>
-</a>
+                <a href="/instagram" class="nav-link instagram-nav">
+                    <i class="fab fa-instagram"></i>
+                </a>
 
-<a href="/facebook" class="nav-link facebook-nav">
-<i class="fab fa-facebook"></i>
-</a>
+                <a href="/facebook" class="nav-link facebook-nav">
+                    <i class="fab fa-facebook"></i>
+                </a>
 
-<a href="/twitter" class="nav-link twitter-nav active-nav">
-<i class="fab fa-x-twitter"></i>
-</a>
-
-
-<button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode" style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
-    <i class="fas fa-moon" style="margin-right:0;"></i>
-</button>
-</nav>
-
-</header>
+                <a href="/twitter" class="nav-link twitter-nav active-nav">
+                    <i class="fab fa-x-twitter"></i>
+                </a>
 
 
-<div class="hero-content">
+                <button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode"
+                    style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-moon" style="margin-right:0;"></i>
+                </button>
+            </nav>
 
-<a href="/" style="margin-bottom:2rem;opacity:0.6;font-size:1.5rem;font-weight:700;">
-← Back to Home
-</a>
+        </header>
 
-<h1>
-<i class="fab fa-x-twitter"></i>
-Twitter Downloader
-</h1>
 
-<p>
-Paste a public Twitter / X video link below and choose your format.
-</p>
+        <div class="hero-content">
 
-<form method="post" action="/twitter/api">
+            <a href="/" style="margin-bottom:2rem;opacity:0.6;font-size:1.5rem;font-weight:700;">
+                ← Back to Home
+            </a>
 
-<label for="twitter-link"></label>
+            <h1>
+                <i class="fab fa-x-twitter"></i>
+                Downloader
+            </h1>
 
-<input
-type="text"
-id="twitter-link"
-name="link_input"
-placeholder="https://x.com/username/status/123456789"
-required>
+            <p>
+                Paste a public Twitter / X video link below and choose your format.
+            </p>
 
-<select name="file_type">
+            <form method="post" action="/twitter/api">
 
-<option value="mp4">Video (MP4)</option>
-<option value="mp3">Audio (MP3)</option>
+                <label for="twitter-link"></label>
 
-</select>
+                <input type="text" id="twitter-link" name="link_input"
+                    placeholder="https://x.com/username/status/123456789" required>
 
-<button type="submit">
-Convert Now
-</button>
+                <!--<select name="file_type">
+                    <option value="mp4">Video (MP4)</option>
+                    <option value="mp3">Audio (MP3)</option>
 
-</form>
+                </select>-->
 
-</div>
-<footer class="disclaimer-footer">
+                <button type="submit">
+                    Convert Now
+                </button>
+
+            </form>
+
+        </div>
+        <footer class="disclaimer-footer">
             <p>This project is created for educational purposes only.</p>
             <p>Users must respect copyright laws and platform terms.</p>
             <h3>Developed by Vamsi_Krishna.</h3>
             <p style="margin-top: 0.5rem; color: var(--text-muted);">&copy; 2026 NexConvert. All rights reserved.</p>
         </footer>
 
-</div>
+    </div>
 
 
-<script>
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const icon = themeToggle.querySelector('i');
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        body.classList.add('light-mode');
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-    }
-
-    themeToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        body.classList.toggle('light-mode');
-        if (body.classList.contains('light-mode')) {
-            localStorage.setItem('theme', 'light');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
-        } else {
-            localStorage.setItem('theme', 'dark');
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
         }
-    });
-</script>
+
+        themeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            body.classList.toggle('light-mode');
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
 </body>
 
 </html>
