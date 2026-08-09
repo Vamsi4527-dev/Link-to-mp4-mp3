@@ -22,11 +22,12 @@
                 <a href="/facebook" class="nav-link facebook-nav active-nav"><i class="fab fa-facebook"></i>
                     <span></span></a>
                 <a href="/twitter" class="nav-link twitter-nav"><i class="fab fa-x-twitter"></i> <span></span></a>
-            
-<button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode" style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
-    <i class="fas fa-moon" style="margin-right:0;"></i>
-</button>
-</nav>
+
+                <button id="theme-toggle" class="nav-link theme-toggle" title="Toggle Light/Dark Mode"
+                    style="cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-moon" style="margin-right:0;"></i>
+                </button>
+            </nav>
         </header>
 
         <div class="hero-content">
@@ -38,10 +39,10 @@
                 <input type="text" id="fb-link-input" name="link_input"
                     placeholder="https://www.facebook.com/watch?v=..." required>
 
-                <select name="file_type" id="fb-file-type">
+                <!--<select name="file_type" id="fb-file-type">
                     <option value="mp4">Video (MP4)</option>
                     <option value="mp3">Audio (MP3)</option>
-                </select>
+                </select>-->
 
                 <button type="submit" id="fb-convert-btn">Convert Now</button>
             </form>
@@ -57,32 +58,32 @@
     </div>
 
 
-<script>
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const icon = themeToggle.querySelector('i');
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        body.classList.add('light-mode');
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-    }
-
-    themeToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        body.classList.toggle('light-mode');
-        if (body.classList.contains('light-mode')) {
-            localStorage.setItem('theme', 'light');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            body.classList.add('light-mode');
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
-        } else {
-            localStorage.setItem('theme', 'dark');
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
         }
-    });
-</script>
+
+        themeToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            body.classList.toggle('light-mode');
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+    </script>
 </body>
 
 
