@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, send_file
 from yt_dlp import YoutubeDL
 import os
 import uuid
+import shutil
 import subprocess
 
 app = Flask(__name__)
@@ -52,8 +53,8 @@ def clean_error(error):
     return error_text
 
 
-# This function just fetches info about the video (title, thumbnail, etc.)
-# without actually downloading it. Used for the "preview" step.
+# This function just fetches info about the video (title,thumbnail,etc.)
+# without actually downloading it.Used for the "preview" step.
 def get_video_info(link):
     options={"quiet":True}
 
@@ -75,8 +76,39 @@ def get_video_info(link):
     return video_info
 
 
+def normalize_file_type(file_type):
+    if file_type is None:
+        return "mp4"
+    return str(file_type).strip().lower()
+
+
+def find_downloaded_file(unique_name, expected_ext=None):
+    if not os.path.exists(DOWNLOAD_FOLDER):
+        return None
+
+    matches = []
+    for filename in os.listdir(DOWNLOAD_FOLDER):
+        full_path = os.path.join(DOWNLOAD_FOLDER, filename)
+        if not os.path.isfile(full_path):
+            continue
+        if not filename.startswith(unique_name):
+            continue
+        matches.append(full_path)
+
+    if expected_ext:
+        for path in sorted(matches, key=os.path.getmtime, reverse=True):
+            if path.lower().endswith(f".{expected_ext}"):
+                return path
+
+    if matches:
+        return sorted(matches, key=os.path.getmtime, reverse=True)[0]
+
+    return None
+
+
 # This function actually downloads the video (and converts to mp3 if needed)
 def download_video(link,file_type):
+    file_type = normalize_file_type(file_type)
 
     # give every download a random unique name so files don't overwrite each other
     unique_name=str(uuid.uuid4())
@@ -87,14 +119,21 @@ def download_video(link,file_type):
         options={
             "outtmpl":save_path,
             "format":"bestaudio/best",
-            "quiet":True
+            "quiet":True,
+            "noplaylist":True,
+            "postprocessors":[{
+                "key":"FFmpegExtractAudio",
+                "preferredcodec":"mp3",
+                "preferredquality":"0"
+            }]
         }
     else:
         options={
             "outtmpl":save_path,
             "format":"bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
             "merge_output_format":"mp4",
-            "quiet":True
+            "quiet":True,
+            "noplaylist":True
         }
 
     # use cookies.txt if it exists (needed for some Instagram links)
@@ -102,40 +141,45 @@ def download_video(link,file_type):
     if os.path.exists(cookie_file):
         options["cookiefile"]=cookie_file
 
+    prepared_file = None
+
     # download the video using yt-dlp
     with YoutubeDL(options) as ydl:
         info=ydl.extract_info(link,download=True)
-        downloaded_file=ydl.prepare_filename(info)
+        prepared_file=ydl.prepare_filename(info)
 
-    # if the user wanted mp4, we are already done
     if file_type=="mp4":
+        downloaded_file = find_downloaded_file(unique_name, "mp4") or prepared_file
+        if not downloaded_file or not os.path.exists(downloaded_file):
+            raise Exception("The MP4 file could not be generated. Please try a different link or try again.")
         return downloaded_file
 
-    # if the user wanted mp3, we still need to convert using ffmpeg
+    # For MP3, prefer the file already produced by yt-dlp's FFmpegExtractAudio postprocessor.
+    # This avoids a second conversion step that often fails on hosted environments.
+    mp3_file = find_downloaded_file(unique_name, "mp3")
+    if mp3_file and os.path.exists(mp3_file):
+        return mp3_file
 
-    mp3_file=os.path.join(DOWNLOAD_FOLDER,unique_name+".mp3")
-
-    # check if there is a local ffmpeg.exe inside the project folder
+    # Fallback to a direct ffmpeg conversion only if yt-dlp did not create the mp3 itself.
     project_folder=os.path.dirname(os.path.abspath(__file__))
     local_ffmpeg=os.path.join(project_folder,"ffmpeg-8.0.1-essentials_build","bin","ffmpeg.exe")
+    ffmpeg_path = local_ffmpeg if os.path.exists(local_ffmpeg) else shutil.which("ffmpeg")
 
-    if os.path.exists(local_ffmpeg):
-        ffmpeg_path=local_ffmpeg
-    else:
-        ffmpeg_path="ffmpeg"   # use ffmpeg from system PATH
+    if not ffmpeg_path:
+        raise Exception("MP3 conversion requires FFmpeg to be installed on this server. Please install FFmpeg and try again.")
 
-    # Run ffmpeg to convert the downloaded file into mp3
-    # NOTE: each part of the command must be a separate item in the list,
-    # otherwise ffmpeg cannot understand the command (this was the bug before!)
-    command = [ffmpeg_path, "-i", downloaded_file, "-vn", "-acodec", "libmp3lame", mp3_file, "-y"]
+    downloaded_file = find_downloaded_file(unique_name) or prepared_file
+    if not downloaded_file or not os.path.exists(downloaded_file):
+        raise Exception("The download was not created correctly. Please try again with a different link.")
+
+    mp3_file = os.path.join(DOWNLOAD_FOLDER, unique_name + ".mp3")
+    command = [ffmpeg_path, "-i", downloaded_file, "-vn", "-ar", "44100", "-acodec", "libmp3lame", mp3_file, "-y"]
     result = subprocess.run(command, capture_output=True, text=True)
 
-    # check if the conversion actually worked before continuing
-    if result.returncode!=0 or not os.path.exists(mp3_file):
-        raise Exception("Something went wrong while converting to mp3. Make sure ffmpeg is installed.")
+    if result.returncode != 0 or not os.path.exists(mp3_file):
+        raise Exception("Something went wrong while converting to mp3. Make sure FFmpeg is installed and working.")
 
-    # delete the original video/audio file since we only need the mp3 now
-    if os.path.exists(downloaded_file) and downloaded_file!=mp3_file:
+    if os.path.exists(downloaded_file) and downloaded_file != mp3_file:
         os.remove(downloaded_file)
 
     return mp3_file
