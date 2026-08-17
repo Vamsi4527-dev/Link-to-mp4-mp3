@@ -1,6 +1,6 @@
-# NexConvert 🚀
+# NexConvert 
 
-Hey! This is a simple web app I made that lets you download videos and audio from **YouTube, Instagram, Facebook, and Twitter/X**. Just paste a link, pick MP4 or MP3, and download it. That's it!
+Hey! This is a simple web app I made that lets you download videos and audio from **Instagram, Facebook, and Twitter/X**. Just paste a link, pick MP4 or MP3, and download it. That's it!
 
 I built this using Python and Flask as a side project to learn web development.
 
@@ -8,11 +8,11 @@ I built this using Python and Flask as a side project to learn web development.
 
 ## What can it do?
 
-- Paste a YouTube, Instagram, Facebook, or Twitter/X link
+- Paste an Instagram, Facebook, or Twitter/X link
 - See a preview of the video (title + thumbnail)
 - Download it as **MP4** (video) or **MP3** (audio)
 
-It supports all 4 platforms from a single app!
+It supports all 3 platforms from a single app!
 
 ---
 
@@ -20,8 +20,7 @@ It supports all 4 platforms from a single app!
 
 - **Python** - backend language
 - **Flask** - web framework
-- **pytubefix** - for downloading YouTube videos
-- **yt-dlp** - for Instagram, Facebook, Twitter/X
+- **yt-dlp** - for downloading from Instagram, Facebook, Twitter/X
 - **FFmpeg** - for converting to MP3
 - **HTML & CSS** - for the frontend pages
 
@@ -38,11 +37,9 @@ NEW_OWN_CONVERTER/
 │   └── style.css        ← styling for the pages
 └── templates/
     ├── main.html        ← home page (choose a platform)
-    ├── index.html       ← YouTube page
     ├── index2.html      ← Instagram page
     ├── index3.html      ← Facebook page
     ├── index4.html      ← Twitter/X page
-    ├── result.html      ← YouTube download page
     ├── result2.html     ← Instagram download page
     ├── result3.html     ← Facebook download page
     ├── result4.html     ← Twitter/X download page
@@ -87,8 +84,7 @@ That's it! The app should be running now.
 
 ## Routes / Pages
 
-- `/` → Home page (pick YouTube, Instagram, Facebook, or Twitter)
-- `/index` → YouTube downloader
+- `/` → Home page (pick Instagram, Facebook, or Twitter)
 - `/instagram` → Instagram downloader
 - `/facebook` → Facebook downloader
 - `/twitter` → Twitter/X downloader
@@ -97,8 +93,8 @@ That's it! The app should be running now.
 
 ## A few things to know
 
-- Downloaded files are saved in the `downloads/` folder. You might want to clear it manually sometimes.
-- YouTube uses `pytubefix`, everything else uses `yt-dlp` (they work differently under the hood).
+- Downloaded files are temporarily saved in the `/tmp/` folder.
+- The app uses `yt-dlp` under the hood for all platforms.
 - MP3 conversion is done using FFmpeg, so make sure it's installed.
 
 ---
