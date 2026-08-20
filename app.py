@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, abort
 from yt_dlp import YoutubeDL
-import os, uuid, glob
+import os, uuid, glob, logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app=Flask(__name__)
 os.makedirs("/tmp", exist_ok=True)
@@ -44,8 +47,34 @@ def download_file(link, ftype):
 
 def handle_error(e):
     msg=str(e)
+    logger.error("Request error: %s", msg)
     if "cookies" in msg.lower(): msg="Please add a valid cookies.txt file."
     return render_template("error.html", error_message=msg)
+
+def safe_download_and_send(link, ftype):
+    """Download, send, and clean up temp files."""
+    filepath = download_file(link, ftype)
+    try:
+        response = send_file(filepath, as_attachment=True)
+        # Register cleanup to delete temp file after response is sent
+        @response.call_on_close
+        def cleanup():
+            try:
+                os.remove(filepath)
+            except OSError:
+                pass
+        return response
+    except Exception:
+        # Clean up on error too
+        try:
+            os.remove(filepath)
+        except OSError:
+            pass
+        raise
+
+@app.route("/favicon.ico")
+def favicon():
+    return abort(204)
 
 # --- PAGES ---
 @app.route("/")
@@ -77,7 +106,7 @@ def instagram_preview():
 
 @app.route("/instagram/download")
 def instagram_download():
-    try: return send_file(download_file(request.args.get("link"), request.args.get("type")), as_attachment=True)
+    try: return safe_download_and_send(request.args.get("link"), request.args.get("type"))
     except Exception as e: return handle_error(e)
 
 
@@ -94,7 +123,7 @@ def facebook_preview():
 
 @app.route("/facebook/download")
 def facebook_download():
-    try: return send_file(download_file(request.args.get("link"), request.args.get("type")), as_attachment=True)
+    try: return safe_download_and_send(request.args.get("link"), request.args.get("type"))
     except Exception as e: return handle_error(e)
 
 
@@ -112,7 +141,7 @@ def twitter_preview():
 @app.route("/twitter/download")
 def twitter_download():
     try: 
-        return send_file(download_file(request.args.get("link"), request.args.get("type")), as_attachment=True)
+        return safe_download_and_send(request.args.get("link"), request.args.get("type"))
     except Exception as e: 
         return handle_error(e)
 
