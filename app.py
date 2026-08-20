@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, abort
+from flask import Flask, render_template, request, send_file, abort, redirect
 from yt_dlp import YoutubeDL
 import os, uuid, glob, logging
 
@@ -9,7 +9,7 @@ app=Flask(__name__)
 os.makedirs("/tmp", exist_ok=True)
 
 def get_opts():
-    opts={"quiet":True}
+    opts={"quiet":True, "no_warnings":True}
     if os.path.exists("cookies.txt"): 
         opts["cookiefile"]="cookies.txt"
     if os.path.exists("ffmpeg-8.0.1-essentials_build/bin/ffmpeg.exe"):
@@ -19,25 +19,41 @@ def get_opts():
     return opts
 
 def get_info(link):
-    with YoutubeDL(get_opts()) as ydl:
-        return ydl.extract_info(link,download=False)
+    opts = get_opts()
+    # Skip unnecessary processing for faster info extraction
+    opts["skip_download"] = True
+    opts["no_check_certificates"] = True
+    with YoutubeDL(opts) as ydl:
+        return ydl.extract_info(link, download=False)
+
+def get_direct_url(link, ftype):
+    """Extract a direct CDN URL for MP4 (avoids proxying through our server)."""
+    opts = get_opts()
+    opts["skip_download"] = True
+    opts["no_check_certificates"] = True
+    if ftype == "mp4":
+        opts["format"] = "best[ext=mp4]/best"
+    else:
+        opts["format"] = "bestaudio/best"
+    with YoutubeDL(opts) as ydl:
+        info = ydl.extract_info(link, download=False)
+        return info.get("url")
 
 def download_file(link, ftype):
     name=str(uuid.uuid4())
     opts=get_opts()
     opts["outtmpl"]=f"/tmp/{name}.%(ext)s"
+    opts["no_check_certificates"] = True
     
     if ftype=="mp3":
         opts["format"]="bestaudio/best"
         opts["postprocessors"]=[{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",
-            "preferredquality": "0" # 0 means ffmpeg to use the highest possible VBR quality
+            "preferredquality": "192"
         }]
     else:
-        # download the best separate video and audio streams and merge them into an mp4
-        opts["format"]="bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best"
-        opts["merge_output_format"]="mp4"
+        opts["format"]="best[ext=mp4]/best"
     
     with YoutubeDL(opts) as ydl:
         ydl.extract_info(link, download=True)
@@ -49,14 +65,24 @@ def handle_error(e):
     msg=str(e)
     logger.error("Request error: %s", msg)
     if "cookies" in msg.lower(): msg="Please add a valid cookies.txt file."
+    if "cannot parse data" in msg.lower(): msg="This link could not be processed. The platform may have changed its format. Please try a different link or try again later."
     return render_template("error.html", error_message=msg)
 
 def safe_download_and_send(link, ftype):
     """Download, send, and clean up temp files."""
+    # For MP4: redirect to CDN directly (much faster, no server download needed)
+    if ftype == "mp4":
+        try:
+            direct_url = get_direct_url(link, ftype)
+            if direct_url:
+                return redirect(direct_url)
+        except Exception:
+            logger.warning("Direct URL failed, falling back to proxy download")
+    
+    # For MP3 or fallback: download on server then send
     filepath = download_file(link, ftype)
     try:
         response = send_file(filepath, as_attachment=True)
-        # Register cleanup to delete temp file after response is sent
         @response.call_on_close
         def cleanup():
             try:
@@ -65,7 +91,6 @@ def safe_download_and_send(link, ftype):
                 pass
         return response
     except Exception:
-        # Clean up on error too
         try:
             os.remove(filepath)
         except OSError:
@@ -148,3 +173,4 @@ def twitter_download():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
