@@ -11,6 +11,8 @@ def get_opts():
         opts["cookiefile"]="cookies.txt"
     if os.path.exists("ffmpeg-8.0.1-essentials_build/bin/ffmpeg.exe"):
         opts["ffmpeg_location"]="ffmpeg-8.0.1-essentials_build/bin/ffmpeg.exe"
+    elif os.path.exists("bin/ffmpeg"):
+        opts["ffmpeg_location"]="bin/ffmpeg"
     return opts
 
 def get_info(link):
@@ -115,4 +117,5 @@ def twitter_download():
         return handle_error(e)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
